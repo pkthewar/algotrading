@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35208.52
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlgoTrader.Api", "AlgoTrader.Api.csproj", "{C77B7767-9E1B-416B-9DC0-D7A6AEEEBEE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgoTrader.Core", "..\AlgoTrader.Core\AlgoTrader.Core.csproj", "{FD0C0B75-4232-49FB-BE5D-8012630FFCC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgoTrader.Trading", "..\AlgoTrader.Trading\AlgoTrader.Trading.csproj", "{D022E805-332D-45B5-97E4-78F132A27AE0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C77B7767-9E1B-416B-9DC0-D7A6AEEEBEE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C77B7767-9E1B-416B-9DC0-D7A6AEEEBEE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C77B7767-9E1B-416B-9DC0-D7A6AEEEBEE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C77B7767-9E1B-416B-9DC0-D7A6AEEEBEE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD0C0B75-4232-49FB-BE5D-8012630FFCC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD0C0B75-4232-49FB-BE5D-8012630FFCC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD0C0B75-4232-49FB-BE5D-8012630FFCC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD0C0B75-4232-49FB-BE5D-8012630FFCC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D022E805-332D-45B5-97E4-78F132A27AE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D022E805-332D-45B5-97E4-78F132A27AE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D022E805-332D-45B5-97E4-78F132A27AE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D022E805-332D-45B5-97E4-78F132A27AE0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AF68C382-0C26-4A8C-8C89-65A1BC62D016}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,6 @@
+@AlgoTrader_HostAddress = http://localhost:5219
+
+GET {{AlgoTrader_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

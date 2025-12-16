@@ -1,10 +1,5 @@
 ﻿using AlgoTrader.Core.Models;
 using AlgoTrader.Core.Strategies.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AlgoTrader.Core.Strategies.Implementations
 {
@@ -21,7 +16,7 @@ namespace AlgoTrader.Core.Strategies.Implementations
             double gains = 0.0;
             double losses = 0.0;
 
-            double[] arr = prices.ToArray();
+            double[] arr = [.. prices];
 
             for (int i = 1; i < arr.Length; i++)
             {

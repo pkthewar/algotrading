@@ -1,11 +1,6 @@
 ﻿using AlgoTrader.Core.Models;
 using AlgoTrader.Trading.Brokers.Interfaces;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AlgoTrader.Trading.Brokers.Implementations
 {

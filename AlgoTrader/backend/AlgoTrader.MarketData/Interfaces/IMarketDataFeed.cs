@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AlgoTrader.Trading.MarketData.Interfaces
+namespace AlgoTrader.MarketData.Interfaces
 {
     public interface IMarketDataFeed
     {

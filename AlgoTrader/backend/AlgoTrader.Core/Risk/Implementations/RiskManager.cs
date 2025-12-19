@@ -11,12 +11,10 @@ namespace AlgoTrader.Core.Risk.Implementations
 
         public bool CanTrade(TradeRequest tradeRequest) => dailyPnL > max_daily_loss && tradeRequest.Quantity <= 500;
 
-        //To-Do: Need to refactor this method after fixing the compile time error.
-        public void RecordTrade(TradeResult tradeResult)
-        {
-            throw new NotImplementedException();
-        }
-
-        //public void RecordTrade(TradeResult tradeResult) => dailyPnL += tradeResult.PnL;
+        /// <summary>
+        /// Record the trade committed by updating the daily Profit & Loss.
+        /// </summary>
+        /// <param name="tradeResult">TradeResult object containing the result of trade execution</param>
+        public void RecordTrade(TradeResult tradeResult) => dailyPnL += tradeResult.Notional;
     }
 }

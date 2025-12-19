@@ -6,6 +6,10 @@ namespace AlgoTrader.Core.Risk.Interfaces
     {
         bool CanTrade(TradeRequest tradeRequest);
 
+        /// <summary>
+        /// Record the trade committed by updating the daily Profit & Loss.
+        /// </summary>
+        /// <param name="tradeResult">TradeResult object containing the result of trade execution</param>
         void RecordTrade(TradeResult tradeResult);
     }
 }

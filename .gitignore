@@ -1,0 +1,21 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/AlgoTrader/backend/AlgoTrader.Api/.vs
+/AlgoTrader/backend/AlgoTrader.Api/obj
+/AlgoTrader/backend/AlgoTrader.Api/WeatherForecast.cs
+/AlgoTrader/backend/AlgoTrader.Core/obj
+/AlgoTrader/backend/AlgoTrader.Core/Class1.cs
+/AlgoTrader/backend/AlgoTrader.Trading/obj
+/AlgoTrader/backend/AlgoTrader.Trading/Class1.cs
+/AlgoTrader/backend/AlgoTrader.Api/bin/Debug/net8.0
+/AlgoTrader/backend/AlgoTrader.Core/bin/Debug/net8.0
+/AlgoTrader/backend/AlgoTrader.Trading/bin/Debug/net8.0
+/AlgoTrader/backend/AlgoTrader.Api/Controllers/WeatherForecastController.cs
+/AlgoTrader/backend/AlgoTrader.Engine/bin/Debug/net8.0
+/AlgoTrader/backend/AlgoTrader.Engine/obj
+/AlgoTrader/backend/AlgoTrader.MarketData/bin/Debug/net8.0
+/AlgoTrader/backend/AlgoTrader.MarketData/obj
+/AlgoTrader/backend/AlgoTrader.Strategies/bin/Debug/net8.0
+/AlgoTrader/backend/AlgoTrader.Strategies/obj

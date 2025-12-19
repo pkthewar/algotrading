@@ -1,10 +1,10 @@
 ﻿using AlgoTrader.Core.Models;
 using AlgoTrader.Core.Risk.Implementations;
 using AlgoTrader.Core.Risk.Interfaces;
-using AlgoTrader.Core.Strategies.Implementations;
-using AlgoTrader.Core.Strategies.Interfaces;
+using AlgoTrader.Strategies.Implementations;
+using AlgoTrader.Strategies.Interfaces;
 using AlgoTrader.Trading.Brokers.Interfaces;
-using AlgoTrader.Trading.MarketData.Interfaces;
+using AlgoTrader.MarketData.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlgoTrader.Api.Controllers
@@ -44,12 +44,12 @@ namespace AlgoTrader.Api.Controllers
                     if (cts.IsCancellationRequested || killSwitch.IsTriggered)
                         break;
 
-                    TradeAction action = selectedStrategy.OnTick(tick);
+                    TradeActionDecision? action = await selectedStrategy.EvaluateAsync(tick);
 
-                    if (action == TradeAction.Hold)
+                    if (action!.TradeAction == TradeAction.Hold)
                         continue;
 
-                    TradeRequest request = new TradeRequest(tick.Symbol, 50, action, tick.Price);
+                    TradeRequest request = new(tick.Symbol, 50, action!.TradeAction, tick.Price);
 
                     if (!riskManager.CanTrade(request))
                         continue;

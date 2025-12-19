@@ -1,5 +1,5 @@
 ﻿using AlgoTrader.Core.Models;
-using AlgoTrader.Trading.MarketData.Interfaces;
+using AlgoTrader.MarketData.Interfaces;
 using KiteConnect;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Concurrent;
@@ -7,7 +7,7 @@ using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace AlgoTrader.Trading.MarketData.Implementations
+namespace AlgoTrader.MarketData.Implementations
 {
     public class ZerodhaWebSocketFeed : IMarketDataFeed
     {
@@ -15,7 +15,7 @@ namespace AlgoTrader.Trading.MarketData.Implementations
         private readonly ClientWebSocket webSocket = new();
         private readonly ConcurrentQueue<MarketTick> ticks = new();
 
-        private readonly Dictionary<uint, string> tokenToSymbol = new();
+        private readonly Dictionary<uint, string> tokenToSymbol = [];
         private readonly Uri wsUri;
 
         public ZerodhaWebSocketFeed(IConfiguration configuration)
@@ -62,7 +62,7 @@ namespace AlgoTrader.Trading.MarketData.Implementations
 
         private async void Subscribe()
         {
-            uint[] tokens = tokenToSymbol.Keys.ToArray();
+            uint[] tokens = [.. tokenToSymbol.Keys];
             ArraySegment<byte> payload = BuildSubscribePayload(tokens);
 
             await webSocket.SendAsync(payload, WebSocketMessageType.Text, true, CancellationToken.None);

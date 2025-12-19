@@ -3,10 +3,10 @@ using AlgoTrader.Core.Risk.Implementations;
 using AlgoTrader.Core.Risk.Interfaces;
 using AlgoTrader.Trading.Brokers.Implementations;
 using AlgoTrader.Trading.Brokers.Interfaces;
-using AlgoTrader.Trading.MarketData.Implementations;
-using AlgoTrader.Trading.MarketData.Interfaces;
+using AlgoTrader.MarketData.Implementations;
+using AlgoTrader.MarketData.Interfaces;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
@@ -22,7 +22,27 @@ builder.Services.AddSingleton<IRiskManager, RiskManager>();
 builder.Services.AddSingleton<ITradingBroker, PaperTradingBroker>();
 builder.Services.AddSingleton<IMarketDataFeed, ZerodhaWebSocketFeed>();
 
-var app = builder.Build();
+string[] allowedOrigins = ["http://localhost:5173"];
+
+builder.Services.AddCors(options =>
+{
+    //options.AddDefaultPolicy(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().SetIsOriginAllowed(_ => true));
+
+    options.AddPolicy("TradingCors", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+        //Allowed Headers
+        .WithHeaders("Content-Type", "Authorization", "X-Requested-With")
+        //Allowed Methods
+        .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+        //Required for SignalR
+        .AllowCredentials()
+        //Time till which browser will remember the request. Often called Preflight request. 
+        .SetPreflightMaxAge(TimeSpan.FromSeconds(10));
+    });
+});
+
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -30,6 +50,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("TradingCors");
 
 app.UseAuthorization();
 

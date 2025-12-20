@@ -12,5 +12,7 @@ namespace AlgoTrader.Trading.Brokers.Interfaces
         Task<TradeResult> PlaceOrderAsync(TradeRequest tradeRequest);
 
         PortfolioSnapshot GetPortfolio();
+
+        Task<bool> PingAsync();
     }
 }

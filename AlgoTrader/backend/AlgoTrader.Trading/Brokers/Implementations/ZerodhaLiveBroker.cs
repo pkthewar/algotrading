@@ -1,12 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AlgoTrader.Core.Models;
+using AlgoTrader.Trading.Brokers.Interfaces;
 
 namespace AlgoTrader.Trading.Brokers.Implementations
 {
-    internal class ZerodhaLiveBroker
+    public class ZerodhaLiveBroker : ITradingBroker
     {
+        public PortfolioSnapshot GetPortfolio()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> PingAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TradeResult> PlaceOrderAsync(TradeRequest tradeRequest)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

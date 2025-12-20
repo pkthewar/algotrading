@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <!-- Target framework for ALL projects -->
+    <TargetFramework>net8.0</TargetFramework>
+
+    <!-- Language & compiler -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Code quality -->
+    <AnalysisLevel>latest</AnalysisLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

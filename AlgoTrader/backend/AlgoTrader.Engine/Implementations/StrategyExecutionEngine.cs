@@ -1,16 +1,19 @@
 ﻿using AlgoTrader.Core.Models;
 using AlgoTrader.Core.Risk.Interfaces;
+using AlgoTrader.Engine.Interfaces;
 using AlgoTrader.Trading.Brokers.Interfaces;
 
-namespace AlgoTrader.Engine
+namespace AlgoTrader.Engine.Implementations
 {
     /// <summary>
     /// 
     /// </summary>
     /// <param name="tradingBroker"></param>
     /// <param name="riskManager"></param>
-    public class StrategyExecutionEngine(ITradingBroker tradingBroker, IRiskManager riskManager)
+    public class StrategyExecutionEngine(ITradingBroker tradingBroker, IRiskManager riskManager) : IStrategyExecutionEngine
     {
+        public bool IsRunning => throw new NotImplementedException();
+
         /// <summary>
         /// 
         /// </summary>

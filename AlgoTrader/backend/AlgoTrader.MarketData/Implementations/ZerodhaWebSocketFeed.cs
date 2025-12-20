@@ -18,6 +18,10 @@ namespace AlgoTrader.MarketData.Implementations
         private readonly Dictionary<uint, string> tokenToSymbol = [];
         private readonly Uri wsUri;
 
+        public bool IsConnected => throw new NotImplementedException();
+
+        public DateTime LastReceivedAt => throw new NotImplementedException();
+
         public ZerodhaWebSocketFeed(IConfiguration configuration)
         {
             string? apiKey = configuration["Zerodha:ApiKey"];

@@ -28,7 +28,7 @@ namespace AlgoTrader.Api.Controllers
         [HttpGet("getHealth")]
         public async Task<IActionResult> GetHealth()
         {
-            SystemHealthStatus health = new SystemHealthStatus
+            SystemHealthStatus health = new()
             {
                 KillSwitchTriggered = killSwitch.IsTriggered,
                 ServerTimeUtc = DateTime.UtcNow,

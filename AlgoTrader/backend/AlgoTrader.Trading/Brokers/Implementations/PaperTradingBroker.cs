@@ -84,5 +84,10 @@ namespace AlgoTrader.Trading.Brokers.Implementations
                 return new PortfolioSnapshot(cash, _positions);
             }
         }
+
+        public Task<bool> PingAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

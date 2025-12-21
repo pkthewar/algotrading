@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type SetStateAction } from 'react'
 import { hubConnection } from '../services/signalr'
 
 export default function MarketTicker() {
@@ -7,7 +7,7 @@ export default function MarketTicker() {
     useEffect(() => {
         hubConnection.start()
 
-        hubConnection.on('tick', (data) => {
+        hubConnection.on('tick', (data: { price: SetStateAction<number> }) => {
             setPrice(data.price)
         })
 

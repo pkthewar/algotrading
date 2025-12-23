@@ -1,6 +1,7 @@
 ﻿using AlgoTrader.Core.Models;
 using AlgoTrader.Trading.Brokers.Interfaces;
 using System.Collections.Concurrent;
+using System.Reflection.Metadata.Ecma335;
 
 namespace AlgoTrader.Trading.Brokers.Implementations
 {
@@ -84,5 +85,7 @@ namespace AlgoTrader.Trading.Brokers.Implementations
                 return new PortfolioSnapshot(cash, _positions);
             }
         }
+
+        public Task<bool> PingAsync() => Task.FromResult(true);
     }
 }

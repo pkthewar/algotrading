@@ -2,7 +2,7 @@ import { api } from '../services/api'
 
 export default function KillSwitch() {
     const trigger = async () => {
-        await api.post('/system/kill')
+        await api.post(`/system/kill`)
 
         alert('Kill Switch Activated')
     }

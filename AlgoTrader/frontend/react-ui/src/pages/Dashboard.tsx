@@ -2,6 +2,7 @@ import MarketTicker from '../components/MarketTicker'
 import StrategyControl from '../components/StrategyControl'
 import Portfolio from '../components/Portfolio'
 import KillSwitch from '../components/KillSwitch' 
+import SystemHealth from '../components/SystemHealth'
 
 export default function Dashboard(){
     return (
@@ -12,6 +13,7 @@ export default function Dashboard(){
             <StrategyControl/>
             <Portfolio/>
             <KillSwitch/>
+            <SystemHealth />
         </div>
     )
 }

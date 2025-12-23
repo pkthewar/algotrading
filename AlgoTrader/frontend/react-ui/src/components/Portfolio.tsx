@@ -13,7 +13,7 @@ export default function Portfolio() {
     const[positions, setPositions] = useState<Record<string, Position>>({})
 
     useEffect(() => {
-        api.get('/trade/portfolio').then((res) => {
+        api.get(`/trade/portfolio`).then((res) => {
             setCash(res.data.cash)
             setPositions(res.data.positions)
         })

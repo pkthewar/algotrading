@@ -13,7 +13,7 @@ namespace AlgoTrader.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SystemController(KillSwitch killSwitch, IMarketDataFeed marketDataFeed, ITradingBroker tradingBroker, IStrategyExecutionEngine strategyExecutionEngine) : ControllerBase
+    public class SystemController(KillSwitch killSwitch, IMarketDataFeed marketDataFeed, ITradingBroker tradingBroker/*, IStrategyExecutionEngine strategyExecutionEngine*/) : ControllerBase
     {
         //private readonly KillSwitch killSwitch = killSwitch;
 
@@ -54,7 +54,7 @@ namespace AlgoTrader.Api.Controllers
                 health.Issues.Add($"Broker ping exception: {ex.Message}");
             }
 
-            health.StrategyEngineRunning = strategyExecutionEngine.IsRunning;
+            //health.StrategyEngineRunning = strategyExecutionEngine.IsRunning; Work on this once merge conflicts are resolved.
 
             if (!health.StrategyEngineRunning)
                 health.Issues.Add("Strategy engine not running");

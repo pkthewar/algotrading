@@ -1,0 +1,14 @@
+
+Questions:
+ExecuteTrade calling is not clear. How will the call happen from frontend in real-time?
+
+MarketHub.cs explanation is still not clear
+
+How to inject RiskConfig? There is a method mentioned as UpdateConfig(). Where to incorporate it? Also, Frontend call is missing
+
+Pending actions from ChatGPT:
+1. Correct PaperTradingBroker class
+2. Correct ZerodhaLiveBroker class
+3. Correct all the strategies class
+4. Modify React SignalR hooks
+5. Check the code for config APIs. We may need to restructure the code it seems.

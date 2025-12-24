@@ -11,16 +11,13 @@ namespace AlgoTrader.MarketData.Implementations
 {
     public class ZerodhaWebSocketFeed : IMarketDataFeed
     {
+        //TO-DO: Integration Hub code present in AlgoTrader.Api project
         private readonly Kite kite;
         private readonly ClientWebSocket webSocket = new();
         private readonly ConcurrentQueue<MarketTick> ticks = new();
 
         private readonly Dictionary<uint, string> tokenToSymbol = [];
         private readonly Uri wsUri;
-
-        public bool IsConnected => throw new NotImplementedException();
-
-        public DateTime LastReceivedAt => throw new NotImplementedException();
 
         public ZerodhaWebSocketFeed(IConfiguration configuration)
         {
@@ -34,6 +31,21 @@ namespace AlgoTrader.MarketData.Implementations
 
             LoadInstrumentTokens();
             Connect();
+        }
+
+        public bool IsConnected { get; private set; }
+
+        public DateTime LastReceivedAt { get; private set; }
+
+        public async IAsyncEnumerable<MarketTick> Stream(string symbol, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                if (ticks.TryDequeue(out MarketTick? tick) && tick.Symbol == symbol)
+                    yield return tick;
+                else
+                    await Task.Delay(10, cancellationToken);
+            }
         }
 
         private void LoadInstrumentTokens()
@@ -109,15 +121,16 @@ namespace AlgoTrader.MarketData.Implementations
                 ticks.Enqueue(new MarketTick(symbol, DateTime.UtcNow, price));
         }
 
-        public async IAsyncEnumerable<MarketTick> Stream(string symbol, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public void OnConnect() => IsConnected = true;
+
+        public async Task OnTickAsync(string symbol, object tick)
         {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                if (ticks.TryDequeue(out MarketTick? tick) && tick.Symbol == symbol)
-                    yield return tick;
-                else
-                    await Task.Delay(10, cancellationToken);
-            }
+            LastReceivedAt = DateTime.UtcNow;
+
+            await Task.CompletedTask;
+            //await hub.Clients.Group(symbol).SendAsync("OnTick", tick);
         }
+
+        public void OnDisconnect() => IsConnected = false;
     }
 }

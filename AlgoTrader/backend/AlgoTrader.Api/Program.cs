@@ -1,4 +1,3 @@
-using AlgoTrader.Api.Hubs;
 using AlgoTrader.Core.Risk.Implementations;
 using AlgoTrader.Core.Risk.Interfaces;
 using AlgoTrader.Trading.Brokers.Implementations;
@@ -7,6 +6,7 @@ using AlgoTrader.MarketData.Implementations;
 using AlgoTrader.MarketData.Interfaces;
 using AlgoTrader.Engine.Interfaces;
 using AlgoTrader.Engine.Implementations;
+using AlgoTrader.Api.Hubs.Implementations;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

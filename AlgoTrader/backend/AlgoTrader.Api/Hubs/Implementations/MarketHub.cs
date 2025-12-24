@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using AlgoTrader.Api.Hubs.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 
-namespace AlgoTrader.Api.Hubs
+namespace AlgoTrader.Api.Hubs.Implementations
 {
-    public class MarketHub : Hub
+    public class MarketHub : Hub, IMarketHub
     {
         /// <summary>
         /// Called when a client connects
@@ -49,7 +50,7 @@ namespace AlgoTrader.Api.Hubs
         public async Task BroadcastTick(string symbol, double price, DateTime time) => await Clients.Group(symbol).SendAsync("tick", new { symbol, price, time });
 
         /// <summary>
-        /// Boradcast the trade execution
+        /// Broadcast the trade execution
         /// </summary>
         /// <param name="trade">JSON object which represents the parameters of the trade</param>
         /// <returns>Task that represents an asynchronous operation of trade being braodcasted.</returns>

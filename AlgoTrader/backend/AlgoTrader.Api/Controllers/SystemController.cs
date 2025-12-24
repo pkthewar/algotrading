@@ -1,19 +1,17 @@
-﻿using AlgoTrader.Core.Risk.Implementations;
+﻿using AlgoTrader.Api.Hubs.Interfaces;
+using AlgoTrader.Core.Risk.Implementations;
 using AlgoTrader.Domain.Health;
 using AlgoTrader.Engine.Interfaces;
 using AlgoTrader.MarketData.Interfaces;
-using AlgoTrader.Strategies.Interfaces;
 using AlgoTrader.Trading.Brokers.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace AlgoTrader.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SystemController(KillSwitch killSwitch, IMarketDataFeed marketDataFeed, ITradingBroker tradingBroker/*, IStrategyExecutionEngine strategyExecutionEngine*/) : ControllerBase
+    public class SystemController(KillSwitch killSwitch, IMarketDataFeed marketDataFeed, ITradingBroker tradingBroker, IStrategyExecutionEngine strategyExecutionEngine ,IMarketHub marketHub) : ControllerBase
     {
         //private readonly KillSwitch killSwitch = killSwitch;
 
@@ -21,6 +19,8 @@ namespace AlgoTrader.Api.Controllers
         public IActionResult Kill()
         {
             killSwitch.Trigger();
+
+            marketHub.BroadcastKillSwitch();
 
             return Ok("Kill switch activated. All trading has been halted");
         }
@@ -34,7 +34,7 @@ namespace AlgoTrader.Api.Controllers
                 ServerTimeUtc = DateTime.UtcNow,
             };
 
-            var stopwatch = Stopwatch.StartNew();
+            Stopwatch stopwatch = Stopwatch.StartNew();
 
             health.MarketFeedConnected = marketDataFeed.IsConnected;
 
@@ -54,7 +54,7 @@ namespace AlgoTrader.Api.Controllers
                 health.Issues.Add($"Broker ping exception: {ex.Message}");
             }
 
-            //health.StrategyEngineRunning = strategyExecutionEngine.IsRunning; Work on this once merge conflicts are resolved.
+            health.StrategyEngineRunning = strategyExecutionEngine.IsRunning;
 
             if (!health.StrategyEngineRunning)
                 health.Issues.Add("Strategy engine not running");

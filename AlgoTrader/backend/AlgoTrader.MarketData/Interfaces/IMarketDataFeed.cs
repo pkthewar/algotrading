@@ -8,6 +8,12 @@ namespace AlgoTrader.MarketData.Interfaces
 
         public DateTime LastReceivedAt { get; }
 
+        void OnConnect();
+
+        Task OnTickAsync(string symbol, object tick);
+
+        void OnDisconnect();
+
         IAsyncEnumerable<MarketTick> Stream(string symbol, CancellationToken cancellationToken = default);
     }
 }

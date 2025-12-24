@@ -6,27 +6,43 @@ using AlgoTrader.Trading.Brokers.Interfaces;
 namespace AlgoTrader.Engine.Implementations
 {
     /// <summary>
-    /// 
+    /// Engine for execution of the trade.
     /// </summary>
-    /// <param name="tradingBroker"></param>
+    /// <param name="tradingBroker">ITradingBroker object which abstracts the logic of communication with the trading API</param>
     /// <param name="riskManager"></param>
     public class StrategyExecutionEngine(ITradingBroker tradingBroker, IRiskManager riskManager) : IStrategyExecutionEngine
     {
-        public bool IsRunning => throw new NotImplementedException();
+        //TO-DO: Integration Hub code present in AlgoTrader.Api project
+        public bool IsRunning { get; private set; }
+
+        public Task StartAsync()
+        {
+            IsRunning = true;
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync()
+        {
+            IsRunning = false;
+            return Task.CompletedTask;
+        }
 
         /// <summary>
-        /// 
+        /// Execute the trade and place the order in exchange.
         /// </summary>
-        /// <param name="decision"></param>
-        /// <returns></returns>
-        public async Task ExecuteAsync(TradeActionDecision decision)
+        /// <param name="tradeRequest">TradeRequest object which holds the details of trade to be performed in the exchange</param>
+        /// <returns>TradeResult created object denoting whether the trade happened successfully or not.</returns>
+        public async Task<TradeResult> ExecuteAsync(TradeRequest tradeRequest)
         {
-            TradeRequest tradeRequest = new(decision.Symbol, decision.Quantity, decision.TradeAction, decision.Price);
-
             if (!riskManager.CanTrade(tradeRequest))
-                return;
+                return new TradeResult(false, 0.0, new DateTime(), 0.0);
 
-            await tradingBroker.PlaceOrderAsync(tradeRequest);
+            TradeResult tradeResult = await tradingBroker.PlaceOrderAsync(tradeRequest);
+
+            riskManager.RecordTrade(tradeResult);
+
+            //
+            return tradeResult!;
         }
     }
 }

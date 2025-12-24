@@ -87,7 +87,7 @@ namespace AlgoTrader.Trading.Brokers.Implementations
 
         public Task<bool> PingAsync()
         {
-            throw new NotImplementedException();
+            return Task.FromResult(true);
         }
     }
 }

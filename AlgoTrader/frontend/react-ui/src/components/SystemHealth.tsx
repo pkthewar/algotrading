@@ -13,34 +13,42 @@ type SystemHealthStatus = {
 }
 
 export default function SystemHealth() {
-    const [health, setHealth] = useState<SystemHealthStatus>()
+    const [healthStatus, setHealthStatus] = useState<SystemHealthStatus | null>(null)
  
     useEffect(() => {
-        api.get('/system/getHealth').then((res) => {
-            setHealth(res.data)
+        api.get(`/system/getHealth`).then((res) => {
+            setHealthStatus(res.data)
         })
     }, [])
     
+    if(!healthStatus)
+        return (
+            <div>Loading System health....</div>
+        )
+
     return (
         <div>
             <h2>System Health</h2>
 
             <ul>
-                <li>Overall Status: res.data.overallStatus</li>
-                <li>Killswitch Triggered: res.data.killSwitchTriggered</li>                
-                <li>Market Feed Connected: res.data.marketFeedConnected</li>                
-                <li>Broker Connected: res.data.brokerConnected</li>                
-                <li>Strategy Engine Running: res.data.strategyEngineRunning</li>                
-                <li>System Latency Ms: res.data.systemLatencyMs</li>                
-                <li>Server Time Utc: res.data.serverTimeUtc</li>          
-
-                {/* To-Do: Map Issues                                    */}
+                <li>Overall Status: {healthStatus?.overallStatus}</li>
+                <li>Killswitch Triggered: {healthStatus?.killSwitchTriggered}</li>                
+                <li>Market Feed Connected: {healthStatus?.marketFeedConnected}</li>                
+                <li>Broker Connected: {healthStatus?.brokerConnected}</li>                
+                <li>Strategy Engine Running: {healthStatus?.strategyEngineRunning}</li>                
+                <li>System Latency (ms): {healthStatus?.systemLatencyMs}</li>                
+                <li>Server Time Utc: {healthStatus?.serverTimeUtc.toString()}</li>          
             </ul>
 
-            {/* <ul>
-                {Object.values(res.data.issues)}
-            </ul> */}
+            {healthStatus.issues.length > 0 ? (
+                <ul>
+                    {healthStatus.issues.map((issue, index) => (
+                        <li key={index}>{issue}</li>
+                    ))}
+                </ul>
+            ) : (
+                <p>No issues detected!</p>
+            )}
         </div>
     )
-
 }

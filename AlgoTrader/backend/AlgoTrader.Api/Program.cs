@@ -5,6 +5,8 @@ using AlgoTrader.Trading.Brokers.Implementations;
 using AlgoTrader.Trading.Brokers.Interfaces;
 using AlgoTrader.MarketData.Implementations;
 using AlgoTrader.MarketData.Interfaces;
+using AlgoTrader.Engine.Interfaces;
+using AlgoTrader.Engine.Implementations;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,7 @@ builder.Services.AddSingleton<KillSwitch>();
 builder.Services.AddSingleton<IRiskManager, RiskManager>();
 builder.Services.AddSingleton<ITradingBroker, PaperTradingBroker>();
 builder.Services.AddSingleton<IMarketDataFeed, ZerodhaWebSocketFeed>();
+builder.Services.AddSingleton<IStrategyExecutionEngine, StrategyExecutionEngine>();
 
 string[] allowedOrigins = ["http://localhost:5173"];
 

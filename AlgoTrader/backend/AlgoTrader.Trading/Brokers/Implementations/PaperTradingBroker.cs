@@ -1,7 +1,6 @@
 ﻿using AlgoTrader.Core.Models;
 using AlgoTrader.Trading.Brokers.Interfaces;
 using System.Collections.Concurrent;
-using System.Reflection.Metadata.Ecma335;
 
 namespace AlgoTrader.Trading.Brokers.Implementations
 {
@@ -86,6 +85,9 @@ namespace AlgoTrader.Trading.Brokers.Implementations
             }
         }
 
-        public Task<bool> PingAsync() => Task.FromResult(true);
+        public Task<bool> PingAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

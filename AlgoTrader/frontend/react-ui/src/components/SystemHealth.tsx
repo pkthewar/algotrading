@@ -1,49 +1,46 @@
 import { useEffect, useState } from 'react'
 import { api } from '../services/api'
 
-type HealthStatus ={
-    Status: string,
-    KillSwitch: boolean,
-    MarketFeed: boolean,
-    Broker: boolean,
-    Issues: string[],
-    //StrategyEngine
-    ServerTimeUtc: Date
+type SystemHealthStatus = {
+    overallStatus: string,
+    killSwitchTriggered: boolean,
+    marketFeedConnected: boolean,
+    brokerConnected: boolean,
+    strategyEngineRunning: boolean,
+    systemLatencyMs: number,
+    serverTimeUtc: Date,
+    issues: Array<string>
 }
 
 export default function SystemHealth() {
-    const[healthStatus, setHealthStatus] = useState<HealthStatus | null>(null)
-
+    const [health, setHealth] = useState<SystemHealthStatus>()
+ 
     useEffect(() => {
-        api.get(`/system/getHealth`).then((res) => {
-            setHealthStatus(res.data.healthStatus)
+        api.get('/system/getHealth').then((res) => {
+            setHealth(res.data)
         })
     }, [])
-
-    if(!healthStatus)
-        return <div>Loading system health...</div>
-
+    
     return (
         <div>
-            <h2>System Health:</h2>
-            <p>Status: {healthStatus.Status}</p>
-            <p>KillSwitch: {healthStatus.KillSwitch}</p>
-            <p>MarketFeed: {healthStatus.MarketFeed}</p>
-            <p>Broker: {healthStatus.Broker}</p>
-            {/* <p>StrategyEngine: {healthStatus.StrategyEngine}</p> */}
-            
-            <h3>Issues</h3>
-            {healthStatus.Issues.length > 0 ? (
-                <ul>
-                    {healthStatus.Issues.map((issue, index) => (
-                        <li key = {index}> {issue}</li>
-                    ))}
-                </ul>
-                ): (
-                    <p>No issues detected! ✅</p>
-                )}
+            <h2>System Health</h2>
 
-            <p>Server Time UTC: {healthStatus.ServerTimeUtc.toString()}</p>
+            <ul>
+                <li>Overall Status: res.data.overallStatus</li>
+                <li>Killswitch Triggered: res.data.killSwitchTriggered</li>                
+                <li>Market Feed Connected: res.data.marketFeedConnected</li>                
+                <li>Broker Connected: res.data.brokerConnected</li>                
+                <li>Strategy Engine Running: res.data.strategyEngineRunning</li>                
+                <li>System Latency Ms: res.data.systemLatencyMs</li>                
+                <li>Server Time Utc: res.data.serverTimeUtc</li>          
+
+                {/* To-Do: Map Issues                                    */}
+            </ul>
+
+            {/* <ul>
+                {Object.values(res.data.issues)}
+            </ul> */}
         </div>
     )
+
 }

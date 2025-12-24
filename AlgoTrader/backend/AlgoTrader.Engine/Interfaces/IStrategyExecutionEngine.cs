@@ -1,9 +1,7 @@
-﻿using AlgoTrader.Core.Models;
-
-namespace AlgoTrader.Engine.Interfaces
+﻿namespace AlgoTrader.Engine.Interfaces
 {
     public interface IStrategyExecutionEngine
     {
-        Task ExecuteAsync(TradeActionDecision decision);
+        public bool IsRunning { get; }
     }
 }

@@ -18,9 +18,9 @@ namespace AlgoTrader.MarketData.Implementations
         private readonly Dictionary<uint, string> tokenToSymbol = [];
         private readonly Uri wsUri;
 
-        private readonly Ticker socket;
+        public bool IsConnected => throw new NotImplementedException();
 
-        public bool IsConnected => socket?.IsConnected == true;
+        public DateTime LastReceivedAt => throw new NotImplementedException();
 
         public ZerodhaWebSocketFeed(IConfiguration configuration)
         {
@@ -31,8 +31,6 @@ namespace AlgoTrader.MarketData.Implementations
             kite.SetAccessToken(accessToken);
 
             wsUri = new Uri($"wss://ws.kite.trade?api_key={apiKey}&access_token={accessToken}");
-
-            socket = new Ticker(apiKey, accessToken);
 
             LoadInstrumentTokens();
             Connect();

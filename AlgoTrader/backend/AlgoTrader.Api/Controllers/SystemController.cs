@@ -1,8 +1,13 @@
 ﻿using AlgoTrader.Core.Risk.Implementations;
+using AlgoTrader.Domain.Health;
 using AlgoTrader.Engine.Interfaces;
 using AlgoTrader.MarketData.Interfaces;
+using AlgoTrader.Strategies.Interfaces;
 using AlgoTrader.Trading.Brokers.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace AlgoTrader.Api.Controllers
 {
@@ -10,10 +15,7 @@ namespace AlgoTrader.Api.Controllers
     [ApiController]
     public class SystemController(KillSwitch killSwitch, IMarketDataFeed marketDataFeed, ITradingBroker tradingBroker, IStrategyExecutionEngine strategyExecutionEngine) : ControllerBase
     {
-        private readonly KillSwitch killSwitch = killSwitch;
-        private readonly IMarketDataFeed marketDataFeed = marketDataFeed;
-        private readonly ITradingBroker tradingBroker = tradingBroker;
-        private readonly IStrategyExecutionEngine strategyExecutionEngine = strategyExecutionEngine;
+        //private readonly KillSwitch killSwitch = killSwitch;
 
         [HttpPost("kill")]
         public IActionResult Kill()
@@ -26,29 +28,50 @@ namespace AlgoTrader.Api.Controllers
         [HttpGet("getHealth")]
         public async Task<IActionResult> GetHealth()
         {
-            List<string> issues = [];
-
-            if (killSwitch.IsTriggered)
-                issues.Add("Kill switch triggered");
-
-            if (!marketDataFeed.IsConnected)
-                issues.Add("Market feed is disconnected");
-
-            if (!await tradingBroker.PingAsync())
-                issues.Add("Broker not reachable");
-
-            return Ok(new
+            SystemHealthStatus health = new()
             {
-                Status = issues.Count > 0 ? "Unhealthy" : "Healthy",
-                KillSwitch = killSwitch.IsTriggered,
-                MarketFeed = marketDataFeed.IsConnected,
-                Broker = await tradingBroker.PingAsync(),
-                StrategyEngine = strategyExecutionEngine, //Check for IsRunning property
-                Issues = issues,
-                ServerTimeUtc = DateTime.UtcNow
-            });
+                KillSwitchTriggered = killSwitch.IsTriggered,
+                ServerTimeUtc = DateTime.UtcNow,
+            };
 
-            //return Ok(new { Status = "Running", KillSwitch = killSwitch.IsTriggered ? "Triggered" : "Active" });
+            var stopwatch = Stopwatch.StartNew();
+
+            health.MarketFeedConnected = marketDataFeed.IsConnected;
+
+            if (!health.MarketFeedConnected)
+                health.Issues.Add("Market data feed is disconncted!");
+
+            try
+            {
+                health.BrokerConnected = await tradingBroker.PingAsync();
+
+                if (!health.BrokerConnected)
+                    health.Issues.Add("Broker connectivity failed");
+            }
+            catch (Exception ex)
+            {
+                health.BrokerConnected = false;
+                health.Issues.Add($"Broker ping exception: {ex.Message}");
+            }
+
+            health.StrategyEngineRunning = strategyExecutionEngine.IsRunning;
+
+            if (!health.StrategyEngineRunning)
+                health.Issues.Add("Strategy engine not running");
+
+            stopwatch.Stop();
+
+            health.SystemLatencyMs = stopwatch.ElapsedMilliseconds;
+
+            if (health.SystemLatencyMs > 1000)
+                health.Issues.Add("System latency above threshold");
+
+            if (!health.BrokerConnected || !health.MarketFeedConnected)
+                health.Issues.Add("Critical dependency failure");
+
+            health.OverallStatus = health.KillSwitchTriggered || health.Issues.Count > 0 ? "Degraded" : "Healthy";
+
+            return Ok(health);
         }
     }
 }

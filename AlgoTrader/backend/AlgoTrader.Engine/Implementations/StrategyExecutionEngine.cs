@@ -12,6 +12,8 @@ namespace AlgoTrader.Engine.Implementations
     /// <param name="riskManager"></param>
     public class StrategyExecutionEngine(ITradingBroker tradingBroker, IRiskManager riskManager) : IStrategyExecutionEngine
     {
+        public bool IsRunning => throw new NotImplementedException();
+
         /// <summary>
         /// 
         /// </summary>

@@ -35,7 +35,7 @@ namespace AlgoTrader.Engine.Implementations
         public async Task<TradeResult> ExecuteAsync(TradeRequest tradeRequest)
         {
             if (!riskManager.CanTrade(tradeRequest))
-                return new TradeResult(false, 0.0, new DateTime(), 0.0);
+                return new TradeResult(tradeRequest.Symbol, tradeRequest.Quantity, tradeRequest.Price, false, new DateTime(), 0.0);
 
             TradeResult tradeResult = await tradingBroker.PlaceOrderAsync(tradeRequest);
 

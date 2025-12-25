@@ -7,7 +7,7 @@ MarketHub.cs explanation is still not clear
 How to inject RiskConfig? There is a method mentioned as UpdateConfig(). Where to incorporate it? Also, Frontend call is missing
 
 Pending actions from ChatGPT:
-1. Correct PaperTradingBroker class
+1. PaperTradingBroker class corrected. Need to wire the frontend call.
 2. Correct ZerodhaLiveBroker class
 3. Correct all the strategies class
 4. Modify React SignalR hooks

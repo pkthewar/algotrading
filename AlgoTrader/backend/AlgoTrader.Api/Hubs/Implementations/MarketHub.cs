@@ -70,3 +70,4 @@ namespace AlgoTrader.Api.Hubs.Implementations
         public async Task BroadcastKillSwitch() => await Clients.All.SendAsync("system", "Kill Switch Activated - Trading Halted!");
     }
 }
+

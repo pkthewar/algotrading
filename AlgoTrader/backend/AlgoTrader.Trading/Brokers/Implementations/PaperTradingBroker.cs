@@ -1,6 +1,9 @@
 ﻿using AlgoTrader.Core.Models;
+using AlgoTrader.MarketData.Interfaces;
 using AlgoTrader.Trading.Brokers.Interfaces;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+// no direct dependency on API/SignalR to avoid circular references
 
 namespace AlgoTrader.Trading.Brokers.Implementations
 {
@@ -8,28 +11,39 @@ namespace AlgoTrader.Trading.Brokers.Implementations
     {
         private readonly object lockObj = new();
 
-        private double cash;
-        private double startingCash;
+        private readonly IMarketDataFeed marketDataFeed;
+        private readonly AlgoTrader.Core.Models.IEventPublisher? eventPublisher;
+        private decimal cash;
+        private decimal startingCash;
 
-        private double maxLoss;
-        private double maxPositionValue;
+        private decimal maxLoss;
+        private decimal maxPositionValue;
 
-        private readonly List<Position> positionsList = [];
+        private readonly List<Position> positionsList = new();
 
         private readonly ConcurrentDictionary<string, int> positions = new();
-        private readonly ConcurrentDictionary<string, double> avgPrice = new();
+        private readonly ConcurrentDictionary<string, decimal> avgPrice = new();
+
+        public PaperTradingBroker(IMarketDataFeed marketDataFeed, AlgoTrader.Core.Models.IEventPublisher? eventPublisher = null)
+        {
+            this.marketDataFeed = marketDataFeed;
+            this.eventPublisher = eventPublisher;
+
+            // subscribe to feed ticks so paper broker reflects real-time prices
+            this.marketDataFeed.TickReceived += OnTickReceived;
+        }
 
         public void Initialize(double startingCash)
         {
-            this.startingCash = startingCash;
-            cash = startingCash;
+            this.startingCash = (decimal)startingCash;
+            cash = (decimal)startingCash;
             positionsList.Clear();
         }
 
         public void SetRisk(double maxLoss, double maxPositionValue)
         {
-            this.maxLoss = maxLoss;
-            this.maxPositionValue = maxPositionValue;
+            this.maxLoss = (decimal)maxLoss;
+            this.maxPositionValue = (decimal)maxPositionValue;
         }
 
         public Task<TradeResult> PlaceOrderAsync(TradeRequest tradeRequest)
@@ -101,7 +115,7 @@ namespace AlgoTrader.Trading.Brokers.Implementations
         {
             lock (lockObj)
             {
-                IDictionary<string, PositionSnapshot> _positions = new Dictionary<string, PositionSnapshot>();
+                Dictionary<string, PositionSnapshot> _positions = new Dictionary<string, PositionSnapshot>();
 
                 foreach (KeyValuePair<string, int> kvp in positions)
                 {
@@ -112,95 +126,139 @@ namespace AlgoTrader.Trading.Brokers.Implementations
                     if (qty == 0)
                         continue;
 
-                    double avg = avgPrice.GetValueOrDefault(symbol);
+                    decimal avg = avgPrice.GetValueOrDefault(symbol);
 
-                    _positions[symbol] = new PositionSnapshot(symbol, qty, avg);
+                    // PositionSnapshot expects decimal avg after models were updated
+                    _positions[symbol] = new PositionSnapshot(symbol, qty, (double)avg);
                 }
 
-                return new PortfolioSnapshot(cash, _positions);
+                return new PortfolioSnapshot((double)cash, _positions);
             }
         }
 
         public Task<bool> PingAsync() => Task.FromResult(true);
 
+        public double GetUnrealizedPnL()
+        {
+            lock (lockObj)
+                return (double)positionsList.Sum(p => (decimal)p.UnrealizedPnL);
+        }
+
+        private void OnTickReceived(MarketTick tick)
+        {
+            lock (lockObj)
+            {
+                Position? pos = positionsList.FirstOrDefault(p => p.Symbol == tick.Symbol);
+
+                pos?.LastPrice = tick.Price;
+            }
+        }
+
         private Task<TradeResult> Buy(TradeRequest tradeRequest)
         {
-            double cost = tradeRequest.Quantity * tradeRequest.Price;
+            TradeResult result;
 
-            if (cash < cost)
-                throw new InvalidOperationException("Insufficient Funds");
-
-            if (cost > maxPositionValue)
-                throw new InvalidOperationException("Position size limit exceeded");
-
-            cash -= cost;
-
-            Position? position = positionsList.FirstOrDefault(p => p.Symbol == tradeRequest.Symbol);
-
-            if (position is null)
+            lock (lockObj)
             {
-                position = new()
+                decimal cost = tradeRequest.Quantity * (decimal)tradeRequest.Price;
+
+                if (cash < cost)
+                    throw new InvalidOperationException("Insufficient Funds");
+
+                if (cost > maxPositionValue)
+                    throw new InvalidOperationException("Position size limit exceeded");
+
+                cash -= cost;
+
+                Position? position = positionsList.FirstOrDefault(p => p.Symbol == tradeRequest.Symbol);
+
+                if (position is null)
                 {
-                    Symbol = tradeRequest.Symbol,
-                    Quantity = tradeRequest.Quantity,
-                    AvgPrice = tradeRequest.Price,
-                    LastPrice = tradeRequest.Price
-                };
+                    position = new()
+                    {
+                        Symbol = tradeRequest.Symbol,
+                        Quantity = tradeRequest.Quantity,
+                        AvgPrice = tradeRequest.Price,
+                        LastPrice = tradeRequest.Price
+                    };
 
-                positionsList.Add(position);
+                    positionsList.Add(position);
+                }
+                else
+                {
+                    int totalQty = position.Quantity + tradeRequest.Quantity;
+
+                    // update avg price using decimal math
+                    decimal prevAvg = (decimal)position.AvgPrice;
+                    decimal newAvg = ((prevAvg * position.Quantity) + cost) / totalQty;
+
+                    position.AvgPrice = (double)newAvg;
+
+                    position.Quantity = totalQty;
+                }
+
+                positions.AddOrUpdate(tradeRequest.Symbol, position.Quantity, (_, __) => position.Quantity);
+                avgPrice.AddOrUpdate(tradeRequest.Symbol, (decimal)position.AvgPrice, (_, __) => (decimal)position.AvgPrice);
+
+                Debug.WriteLine($"[PaperTradingBroker] Buy executed: {tradeRequest.Symbol} qty={tradeRequest.Quantity} price={tradeRequest.Price}");
+
+                result = new TradeResult(tradeRequest.Symbol, tradeRequest.Quantity, tradeRequest.Price, true, DateTime.UtcNow, 0.0);
             }
-            else
-            {
-                int totalQty = position.Quantity + tradeRequest.Quantity;
 
-                position.AvgPrice = ((position.AvgPrice * position.Quantity) + cost) / totalQty;
+            // broadcasting is handled by the API layer (MarketHub); skip here
+            Debug.WriteLine("[PaperTradingBroker] Broadcast skipped (handled by API layer)");
 
-                position.Quantity = totalQty;
-            }
-
-            positions[tradeRequest.Symbol] = position.Quantity;
-            avgPrice[tradeRequest.Symbol] = position.AvgPrice;
-
-            return Task.FromResult(new TradeResult(tradeRequest.Symbol, tradeRequest.Quantity, tradeRequest.Price, true, DateTime.UtcNow, 0));
+            return Task.FromResult(result);
         }
 
         private Task<TradeResult> Sell(TradeRequest tradeRequest)
         {
-            Position position = positionsList.FirstOrDefault(p => p.Symbol == tradeRequest.Symbol) ?? throw new InvalidOperationException("No positions to sell");
+            TradeResult result;
 
-            if (position.Quantity < tradeRequest.Quantity)
-                throw new InvalidOperationException("Available quantity is lesser than requested quantity");
-
-            double realizedPnL = (tradeRequest.Price - position.AvgPrice) * tradeRequest.Quantity;
-
-            position.Quantity -= tradeRequest.Quantity;
-
-            cash += tradeRequest.Price * tradeRequest.Quantity;
-
-            if (position.Quantity == 0)
+            lock (lockObj)
             {
-                positionsList.Remove(position);
+                Position position = positionsList.FirstOrDefault(p => p.Symbol == tradeRequest.Symbol) ?? throw new InvalidOperationException("No positions to sell");
 
-                positions.Remove(tradeRequest.Symbol, out int quantity);
+                if (position.Quantity < tradeRequest.Quantity)
+                    throw new InvalidOperationException("Available quantity is lesser than requested quantity");
 
-                avgPrice.Remove(tradeRequest.Symbol, out double price);
+                decimal realizedPnL = ((decimal)tradeRequest.Price - (decimal)position.AvgPrice) * tradeRequest.Quantity;
+
+                position.Quantity -= tradeRequest.Quantity;
+
+                cash += (decimal)tradeRequest.Price * tradeRequest.Quantity;
+
+                if (position.Quantity == 0)
+                {
+                    positionsList.Remove(position);
+
+                    positions.TryRemove(tradeRequest.Symbol, out _);
+
+                    avgPrice.TryRemove(tradeRequest.Symbol, out _);
+                }
+                else
+                {
+                    positions.AddOrUpdate(tradeRequest.Symbol, position.Quantity, (_, __) => position.Quantity);
+
+                    avgPrice.AddOrUpdate(tradeRequest.Symbol, (decimal)position.AvgPrice, (_, __) => (decimal)position.AvgPrice);
+                }
+
+                CheckMaxLoss();
+
+                Debug.WriteLine($"[PaperTradingBroker] Sell executed: {tradeRequest.Symbol} qty={tradeRequest.Quantity} price={tradeRequest.Price} realizedPnL={(double)realizedPnL}");
+
+                result = new TradeResult(tradeRequest.Symbol, tradeRequest.Quantity, tradeRequest.Price, true, DateTime.UtcNow, (double)realizedPnL);
             }
-            else
-            {
-                positions[tradeRequest.Symbol] = position.Quantity;
 
-                avgPrice[tradeRequest.Symbol] = position.AvgPrice;
-            }
+            // broadcasting is handled by the API layer (MarketHub); skip here
+            Debug.WriteLine("[PaperTradingBroker] Broadcast skipped (handled by API layer)");
 
-            CheckMaxLoss();
-
-
-            return Task.FromResult(new TradeResult(tradeRequest.Symbol, tradeRequest.Quantity, tradeRequest.Price, true, DateTime.UtcNow, realizedPnL));
+            return Task.FromResult(result);
         }
 
         private void CheckMaxLoss()
         {
-            double totalPnL = positionsList.Sum(p => p.UnrealizedPnL);
+            decimal totalPnL = positionsList.Sum(p => (decimal)p.UnrealizedPnL);
 
             if (totalPnL <= -maxLoss)
                 throw new InvalidOperationException("Max loss breached");

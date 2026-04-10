@@ -1,12 +1,12 @@
+using AlgoTrader.Api.Hubs.Implementations;
 using AlgoTrader.Core.Risk.Implementations;
 using AlgoTrader.Core.Risk.Interfaces;
-using AlgoTrader.Trading.Brokers.Implementations;
-using AlgoTrader.Trading.Brokers.Interfaces;
+using AlgoTrader.Engine.Implementations;
+using AlgoTrader.Engine.Interfaces;
 using AlgoTrader.MarketData.Implementations;
 using AlgoTrader.MarketData.Interfaces;
-using AlgoTrader.Engine.Interfaces;
-using AlgoTrader.Engine.Implementations;
-using AlgoTrader.Api.Hubs.Implementations;
+using AlgoTrader.Trading.Brokers.Implementations;
+using AlgoTrader.Trading.Brokers.Interfaces;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -21,16 +21,19 @@ builder.Services.AddSignalR();
 
 builder.Services.AddSingleton<KillSwitch>();
 builder.Services.AddSingleton<IRiskManager, RiskManager>();
-builder.Services.AddSingleton<ITradingBroker, PaperTradingBroker>();
+// register market data before paper broker so DI can inject
 builder.Services.AddSingleton<IMarketDataFeed, ZerodhaWebSocketFeed>();
+builder.Services.AddSingleton<ITradingBroker, PaperTradingBroker>();
 builder.Services.AddSingleton<IStrategyExecutionEngine, StrategyExecutionEngine>();
+builder.Services.AddSingleton<MarketHub>();
+// Register event publisher for broadcasting trades/portfolios from execution engine
+builder.Services.AddSingleton<AlgoTrader.Api.Services.BrokerEventPublisher>();
+builder.Services.AddSingleton<AlgoTrader.Core.Models.IEventPublisher>(sp => sp.GetRequiredService<AlgoTrader.Api.Services.BrokerEventPublisher>());
 
 string[] allowedOrigins = ["http://localhost:5173"];
 
 builder.Services.AddCors(options =>
 {
-    //options.AddDefaultPolicy(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().SetIsOriginAllowed(_ => true));
-
     options.AddPolicy("TradingCors", policy =>
     {
         policy.WithOrigins(allowedOrigins)

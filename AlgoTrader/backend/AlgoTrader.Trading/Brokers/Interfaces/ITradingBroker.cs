@@ -8,6 +8,11 @@ namespace AlgoTrader.Trading.Brokers.Interfaces
 
         PortfolioSnapshot GetPortfolio();
 
+        /// <summary>
+        /// Returns total unrealized PnL across all positions (based on last prices received from feed).
+        /// </summary>
+        double GetUnrealizedPnL();
+
         Task<bool> PingAsync();
     }
 }

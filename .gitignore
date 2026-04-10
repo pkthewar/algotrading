@@ -32,3 +32,11 @@
 /.vs
 /AlgoTrader/backend/.vs/AlgoTrader/v18/.suo
 /AlgoTrader/backend/.vs/AlgoTrader/v18
+/AlgoTrader/backend/.vs
+/AlgoTrader/backend/AlgoTrader.Api/bin/Debug/net10.0
+/AlgoTrader/backend/AlgoTrader.Core/bin/Debug/net10.0
+/AlgoTrader/backend/AlgoTrader.Domain/bin/Debug/net10.0
+/AlgoTrader/backend/AlgoTrader.Engine/bin/Debug/net10.0
+/AlgoTrader/backend/AlgoTrader.MarketData/bin/Debug/net10.0
+/AlgoTrader/backend/AlgoTrader.Strategies/bin/Debug/net10.0
+/AlgoTrader/backend/AlgoTrader.Trading/bin/Debug/net10.0

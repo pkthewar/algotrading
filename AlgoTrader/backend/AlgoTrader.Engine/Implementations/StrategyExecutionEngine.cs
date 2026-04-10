@@ -41,7 +41,6 @@ namespace AlgoTrader.Engine.Implementations
 
             riskManager.RecordTrade(tradeResult);
 
-            //
             return tradeResult!;
         }
     }

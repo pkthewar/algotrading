@@ -11,6 +11,7 @@ namespace AlgoTrader.MarketData.Implementations
 {
     public class ZerodhaWebSocketFeed : IMarketDataFeed
     {
+        public event Action<MarketTick>? TickReceived;
         //TO-DO: Integration Hub code present in AlgoTrader.Api project
         private readonly Kite kite;
         private readonly ClientWebSocket webSocket = new();
@@ -118,7 +119,11 @@ namespace AlgoTrader.MarketData.Implementations
             double price = BitConverter.ToInt32(data, 4) / 100.0;
 
             if (tokenToSymbol.TryGetValue(token, out string? symbol))
-                ticks.Enqueue(new MarketTick(symbol, DateTime.UtcNow, price));
+            {
+                var tick = new MarketTick(symbol, DateTime.UtcNow, price);
+                ticks.Enqueue(tick);
+                TickReceived?.Invoke(tick);
+            }
         }
 
         public void OnConnect() => IsConnected = true;
@@ -126,6 +131,12 @@ namespace AlgoTrader.MarketData.Implementations
         public async Task OnTickAsync(string symbol, object tick)
         {
             LastReceivedAt = DateTime.UtcNow;
+
+            if (tick is MarketTick mt)
+            {
+                ticks.Enqueue(mt);
+                TickReceived?.Invoke(mt);
+            }
 
             await Task.CompletedTask;
             //await hub.Clients.Group(symbol).SendAsync("OnTick", tick);

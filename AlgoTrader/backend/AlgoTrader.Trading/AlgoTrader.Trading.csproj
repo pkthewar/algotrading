@@ -7,14 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="16.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.1" />
-    <PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
-    <PackageReference Include="Tech.Zerodha.KiteConnect" Version="4.3.0" />
+    <PackageReference Include="AutoMapper" Version="16.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.5" />
+    <PackageReference Include="Tech.Zerodha.KiteConnect" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AlgoTrader.Core\AlgoTrader.Core.csproj" />
+    <ProjectReference Include="..\AlgoTrader.MarketData\AlgoTrader.MarketData.csproj" />
   </ItemGroup>
+
 
 </Project>

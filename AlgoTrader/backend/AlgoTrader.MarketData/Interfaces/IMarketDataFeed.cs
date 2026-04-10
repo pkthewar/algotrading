@@ -8,6 +8,9 @@ namespace AlgoTrader.MarketData.Interfaces
 
         public DateTime LastReceivedAt { get; }
 
+        // Raised when a market tick is received from the feed
+        public event Action<MarketTick>? TickReceived;
+
         void OnConnect();
 
         Task OnTickAsync(string symbol, object tick);

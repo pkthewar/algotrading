@@ -1,27 +1,27 @@
-import { useEffect, useState, type SetStateAction } from 'react'
+import { useEffect, useState } from 'react'
 import { hubConnection } from '../services/signalr'
+import type { MarketTick } from '../types/api'
 
 export default function MarketTicker() {
-    const [price, setPrice] = useState<number>(0)
+  const [price, setPrice] = useState<number>(0)
 
-    useEffect(() => {
-        hubConnection.start()
+  useEffect(() => {
+    void hubConnection.start().then(() => hubConnection.invoke('Subscribe', 'NIFTY'))
 
-        hubConnection.on('tick', (data: { price: SetStateAction<number> }) => {
-            setPrice(data.price)
-        })
+    hubConnection.on('tick', (data: MarketTick) => {
+      setPrice(data.price)
+    })
 
-        hubConnection.invoke("Subscribe", "NIFTY")
+    return () => {
+      hubConnection.off('tick')
+      void hubConnection.invoke('Unsubscribe', 'NIFTY').catch(() => undefined)
+    }
+  }, [])
 
-        return () => {
-            hubConnection.off('tick')
-        }
-    }, [])
-
-    return (
-        <div>
-            <h2>NIFTY</h2>
-            <p>Live Price: {price}</p>
-        </div>
-    )
+  return (
+    <div>
+      <h2>NIFTY</h2>
+      <p>Live Price: {price}</p>
+    </div>
+  )
 }

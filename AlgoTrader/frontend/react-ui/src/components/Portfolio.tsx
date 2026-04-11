@@ -1,36 +1,31 @@
 import { useEffect, useState } from 'react'
 import { api } from '../services/api'
-
-type Position = {
-    symbol : string
-    quantity: number
-    avgPrice: number
-}
+import type { PortfolioSnapshot } from '../types/api'
 
 export default function Portfolio() {
+  const [portfolio, setPortfolio] = useState<PortfolioSnapshot>({
+    cash: 0,
+    positions: {},
+  })
 
-    const[cash, setCash] = useState<number>(0)
-    const[positions, setPositions] = useState<Record<string, Position>>({})
+  useEffect(() => {
+    api.get<PortfolioSnapshot>('/trade/getPortfolio').then((res) => {
+      setPortfolio(res.data)
+    })
+  }, [])
 
-    useEffect(() => {
-        api.get(`/trade/getPortfolio`).then((res) => {
-            setCash(res.data.cash)
-            setPositions(res.data.positions)
-        })
-    }, [])
+  return (
+    <div>
+      <h2>Portfolio</h2>
+      <p>Cash: Rs. {portfolio.cash.toFixed(2)}</p>
 
-    return (
-        <div>
-            <h2>Portfolio</h2>
-            <p>Cash: Rs. {cash.toFixed(2)}</p>
-
-            <ul>
-                {Object.values(positions).map((p) => (
-                    <li key = {p.symbol}>
-                        {p.symbol} - {p.quantity} @ {p.avgPrice}
-                    </li>
-                ))}
-            </ul>
-        </div>
-    )
+      <ul>
+        {Object.values(portfolio.positions).map((position) => (
+          <li key={position.symbol}>
+            {position.symbol} - {position.quantity} @ {position.avgPrice}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }
